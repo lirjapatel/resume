@@ -828,29 +828,29 @@
         button.textContent = "Processing...";
       }
 
-      fetch("/analysis")
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            displayAnalysisResult(data);
-            // Call other fetch functions
-            fetchElevatorPitch();
-            fetchStarInfo();
-          } else {
-            throw new Error(data.error || "Unknown error occurred");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("Error fetching analysis: " + error.message);
-        })
-        .finally(() => {
-          if (button && spinner) {
-            button.disabled = false;
-            spinner.style.display = "none";
-            button.textContent = "View Analysis";
-          }
-        });
+      // fetch("/analysis")
+      //   .then((response) => response.json())
+      //   .then((data) => {
+      //     if (data.success) {
+      //       displayAnalysisResult(data);
+      //       // Call other fetch functions
+      //       fetchElevatorPitch();
+      //       fetchStarInfo();
+      //     } else {
+      //       throw new Error(data.error || "Unknown error occurred");
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error:", error);
+      //     alert("Error fetching analysis: " + error.message);
+      //   })
+      //   .finally(() => {
+      //     if (button && spinner) {
+      //       button.disabled = false;
+      //       spinner.style.display = "none";
+      //       button.textContent = "View Analysis";
+      //     }
+      //   });
     }
     //ElevatorPitch
     function displayElevatorPitch(pitch) {
