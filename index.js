@@ -186,11 +186,11 @@ app.get("/process-resumes", async (req, res) => {
   }
 });
 
-// wait and run the Orgpath (3).ipynb here
+// wait and run the Orgpath.ipynb here
 
 app.get("/run-notebook", async (req, res) => {
   try {
-    const notebookPath = path.join(__dirname, "Orgpath (3).ipynb");
+    const notebookPath = path.join(__dirname, "Orgpath.ipynb");
     const pythonScript = path.join(__dirname, "run_notebook.py");
     const python = spawn("python3", [pythonScript, notebookPath]);
 
