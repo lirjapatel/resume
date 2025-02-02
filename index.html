@@ -822,35 +822,26 @@
       const button = document.getElementById("viewAnalysisBtn");
       const spinner = document.getElementById("loadingSpinner");
 
-      if (button && spinner) {
-        button.disabled = true;
-        spinner.style.display = "inline-block";
-        button.textContent = "Processing...";
-      }
-
-      // fetch("/analysis")
-      //   .then((response) => response.json())
-      //   .then((data) => {
-      //     if (data.success) {
-      //       displayAnalysisResult(data);
-      //       // Call other fetch functions
-      //       fetchElevatorPitch();
-      //       fetchStarInfo();
-      //     } else {
-      //       throw new Error(data.error || "Unknown error occurred");
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error:", error);
-      //     alert("Error fetching analysis: " + error.message);
-      //   })
-      //   .finally(() => {
-      //     if (button && spinner) {
-      //       button.disabled = false;
-      //       spinner.style.display = "none";
-      //       button.textContent = "View Analysis";
-      //     }
-      //   });
+     fetch("https://your-heroku-app.herokuapp.com/analysis")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          displayAnalysisResult(data);
+          fetchElevatorPitch();
+        } else {
+          throw new Error(data.error || "Unknown error occurred");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error fetching analysis: " + error.message);
+      })
+      .finally(() => {
+        // Now button and spinner are defined
+        button.disabled = false;
+        spinner.style.display = "none";
+        button.textContent = "View Analysis";
+      });
     }
     //ElevatorPitch
     function displayElevatorPitch(pitch) {
