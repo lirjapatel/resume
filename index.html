@@ -819,39 +819,82 @@
   }
   
   // ANALYSIS FETCH FUNCTION (called when the user clicks the "View Analysis" button)
-    function fetchAnalysis() {
-    const button = document.getElementById("viewAnalysisBtn");
-    const spinner = document.getElementById("loadingSpinner");
+  //   function fetchAnalysis() {
+  //   const button = document.getElementById("viewAnalysisBtn");
+  //   const spinner = document.getElementById("loadingSpinner");
     
-    // Update UI to indicate processing
-    button.disabled = true;
-    spinner.style.display = "inline-block";
-    button.textContent = "Processing...";
+  //   // Update UI to indicate processing
+  //   button.disabled = true;
+  //   spinner.style.display = "inline-block";
+  //   button.textContent = "Processing...";
   
-    fetch(https://resume22-8ca971020619.herokuapp.com/analysis")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          displayAnalysisResult(data);
-          // Call elevator pitch and STAR info functions in the same style
-          fetchElevatorPitch();
-          fetchStarInfo();
-        } else {
-          throw new Error(data.error || "Unknown error occurred");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Error fetching analysis: " + error.message);
-      })
-      .finally(() => {
-        // Restore button and spinner states
-        button.disabled = false;
-        spinner.style.display = "none";
-        button.textContent = "View Analysis";
-      });
-  }
-  
+  //   fetch(https://resume22-8ca971020619.herokuapp.com/analysis")
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       if (data.success) {
+  //         displayAnalysisResult(data);
+  //         // Call elevator pitch and STAR info functions in the same style
+  //         fetchElevatorPitch();
+  //         fetchStarInfo();
+  //       } else {
+  //         throw new Error(data.error || "Unknown error occurred");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error:", error);
+  //       alert("Error fetching analysis: " + error.message);
+  //     })
+  //     .finally(() => {
+  //       // Restore button and spinner states
+  //       button.disabled = false;
+  //       spinner.style.display = "none";
+  //       button.textContent = "View Analysis";
+  //     });
+  // }
+
+  function fetchAnalysis() {
+   const button = document.getElementById("viewAnalysisBtn");
+   const spinner = document.getElementById("loadingSpinner");
+   
+   // Update UI to indicate processing
+   button.disabled = true;
+   spinner.style.display = "inline-block";
+   button.textContent = "Processing...";
+      
+   // First, call the /run-notebook endpoint to execute the ipynb
+   fetch("https://resume22-8ca971020619.herokuapp.com/run-notebook")
+     .then(response => response.json())
+     .then(notebookResult => {
+       if (notebookResult.success) {
+         // Notebook executed successfully; now fetch analysis data
+         return fetch("https://resume22-8ca971020619.herokuapp.com/analysis");
+       } else {
+         throw new Error("Notebook execution failed: " + notebookResult.error);
+       }
+     })
+     .then(response => response.json())
+     .then(data => {
+       if (data.success) {
+         displayAnalysisResult(data);
+         // Fetch additional details
+         fetchElevatorPitch();
+         fetchStarInfo();
+       } else {
+         throw new Error(data.error || "Unknown error occurred");
+       }
+     })
+     .catch(error => {
+       console.error("Error:", error);
+       alert("Error fetching analysis: " + error.message);
+     })
+     .finally(() => {
+       // Restore button and spinner states
+       button.disabled = false;
+       spinner.style.display = "none";
+       button.textContent = "View Analysis";
+     });
+   }
+ 
   // ELEVATOR PITCH FUNCTIONS
   function displayElevatorPitch(pitch) {
     const elevatorPitchArea = document.getElementById("elevatorPitchArea");
