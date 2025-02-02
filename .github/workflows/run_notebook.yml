@@ -32,12 +32,13 @@ jobs:
       run: |
         echo "MONGODB_URI is set: ${{ secrets.MONGODB_URI != '' }}"
         echo "OPENAI_API_KEY is set: ${{ secrets.OPENAI_API_KEY != '' }}"
+        echo "GITHUB_TOKEN is set: ${{ secrets.GIT_TOKEN != '' }}"
 
     - name: Run notebook
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
       run: python run_notebook.py "Orgpath (3).ipynb"
       
     - name: Commit changes
