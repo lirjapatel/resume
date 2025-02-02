@@ -765,93 +765,68 @@
     </div>
   </div>
 
-  <script>
-    function handleFileUpload() {
-      const fileInput = document.querySelector('input[type="file"]');
-      const file = fileInput.files[0];
-    
-      if (!file) {
-        alert("Please select a file to upload.");
-        return;
+<script>
+  // FILE UPLOAD & PREVIEW FUNCTIONS
+  function handleFileUpload() {
+    const fileInput = document.querySelector('input[type="file"]');
+    const file = fileInput.files[0];
+  
+    if (!file) {
+      alert("Please select a file to upload.");
+      return;
+    }
+  
+    const allowedTypes = ['.pdf', '.doc', '.docx'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      alert("Invalid file type. Please upload a PDF, DOC, or DOCX file.");
+      return;
+    }
+  
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert("File is too large. Maximum size is 5MB.");
+      return;
+    }
+  
+    showPreview(file);
+    document.getElementById("viewAnalysisBtn").disabled = false;
+    alert("File processed successfully!");
+  }
+  
+  function showPreview(file) {
+    const previewArea = document.getElementById("previewArea");
+    const pdfPreview = document.getElementById("pdfPreview");
+    const docPreview = document.getElementById("docPreview");
+  
+    previewArea.style.display = "block";
+  
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      if (file.type === "application/pdf") {
+        pdfPreview.src = e.target.result;
+        pdfPreview.style.display = "block";
+        docPreview.style.display = "none";
+      } else {
+        pdfPreview.style.display = "none";
+        docPreview.style.display = "block";
+        docPreview.setAttribute("data-original-text", file.name);
+        docPreview.textContent = file.name;
       }
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  // ANALYSIS FETCH FUNCTION (called when the user clicks the "View Analysis" button)
+  function fetchAnalysis() {
+    const button = document.getElementById("viewAnalysisBtn");
+    const spinner = document.getElementById("loadingSpinner");
     
-      const allowedTypes = ['.pdf', '.doc', '.docx'];
-      const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-      if (!allowedTypes.includes(fileExtension)) {
-        alert("Invalid file type. Please upload a PDF, DOC, or DOCX file.");
-        return;
-      }
-    
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        alert("File is too large. Maximum size is 5MB.");
-        return;
-      }
-    
-      showPreview(file);
-      document.getElementById("viewAnalysisBtn").disabled = false;
-      alert("File processed successfully!");
-    }
-    
-    function showPreview(file) {
-      const previewArea = document.getElementById("previewArea");
-      const pdfPreview = document.getElementById("pdfPreview");
-      const docPreview = document.getElementById("docPreview");
-    
-      previewArea.style.display = "block";
-    
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        if (file.type === "application/pdf") {
-          pdfPreview.src = e.target.result;
-          pdfPreview.style.display = "block";
-          docPreview.style.display = "none";
-        } else {
-          pdfPreview.style.display = "none";
-          docPreview.style.display = "block";
-          docPreview.setAttribute("data-original-text", file.name);
-          docPreview.textContent = file.name;
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-    
-
-    //Analysis
-    function fetchAnalysis() {
-      const button = document.getElementById("viewAnalysisBtn");
-      const spinner = document.getElementById("loadingSpinner");
-
-     // fetch("https://resume22-8ca971020619.herokuapp.com/analysis")
-     //  .then((response) => response.json())
-     //  .then((data) => {
-     //    if (data.success) {
-     //      displayAnalysisResult(data);
-     //      fetchElevatorPitch();
-     //    } else {
-     //      throw new Error(data.error || "Unknown error occurred");
-     //    }
-     //  })
-     //  .catch((error) => {
-     //    console.error("Error:", error);
-     //    alert("Error fetching analysis: " + error.message);
-     //  })
-     //  .finally(() => {
-     //    // Now button and spinner are defined
-     //    button.disabled = false;
-     //    spinner.style.display = "none";
-     //    button.textContent = "View Analysis";
-     //  });
-    }
-    //ElevatorPitch
-    function displayElevatorPitch(pitch) {
-      // const button = document.getElementById("viewAnalysisBtn");
-      const elevatorPitchArea = document.getElementById("elevatorPitchArea");
-      const elevatorPitchText = document.getElementById("elevatorPitchText");
-      elevatorPitchText.innerHTML = pitch.replace(/\n/g, "<br>");
-      elevatorPitchArea.style.display = "block";
-    }
-    //elevator pitch analysis
+    // Update UI to indicate processing
+    button.disabled = true;
+    spinner.style.display = "inline-block";
+    button.textContent = "Processing...";
+  
     fetch("https://resume22-8ca971020619.herokuapp.com/analysis")
       .then((response) => response.json())
       .then((data) => {
@@ -867,201 +842,168 @@
         alert("Error fetching analysis: " + error.message);
       })
       .finally(() => {
+        // Restore button and spinner states
         button.disabled = false;
         spinner.style.display = "none";
         button.textContent = "View Analysis";
       });
-
-    // highlighting function
-    function highlightResumeText(text, highlights) {
-      if (
-        !highlights ||
-        !highlights.sections ||
-        !Array.isArray(highlights.sections)
-      ) {
-        console.error("Invalid highlights structure:", highlights);
-        return text;
-      }
-
-      let highlightedText = text;
-      highlights.sections.forEach((section) => {
-        if (section.text && section.reason) {
-          const escapedText = section.text.replace(
-            /[.*+?^${}()|[\]\\]/g,
-            "\\$&"
-          );
-          const regex = new RegExp(escapedText, "gi");
-          highlightedText = highlightedText.replace(
-            regex,
-            `<mark title="${section.reason}">${section.text}</mark>`
-          );
+  }
+  
+  // ELEVATOR PITCH FUNCTIONS
+  function displayElevatorPitch(pitch) {
+    const elevatorPitchArea = document.getElementById("elevatorPitchArea");
+    const elevatorPitchText = document.getElementById("elevatorPitchText");
+    elevatorPitchText.innerHTML = pitch.replace(/\n/g, "<br>");
+    elevatorPitchArea.style.display = "block";
+  }
+  
+  function fetchElevatorPitch() {
+    fetch("https://resume22-8ca971020619.herokuapp.com/elevator-pitch")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          displayElevatorPitch(data.elevator_pitch);
+        } else {
+          console.error("Error fetching elevator pitch:", data.error);
         }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
       });
-      return highlightedText;
-    }
-
-    //STAR INFO
-    function fetchStarInfo() {
-      fetch("https://resume22-8ca971020619.herokuapp.com/star-info")
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            const starInfoArea = document.getElementById("starInfoArea");
-            const starInfoText = document.getElementById("starInfoText");
-            let formattedStarInfo = data.star_info
-              .replace(/\n/g, "<br>")
-              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-            starInfoText.innerHTML = formattedStarInfo;
-            starInfoArea.style.display = "block";
-          } else {
-            console.error("Error fetching STAR info:", data.error);
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-        // diplay scores 
-    function displayScores(scores) {
-      try {
-        // Update overall score
-        const overallScoreElement = document.getElementById('overall-score-value');
-        if (overallScoreElement) {
-          const overallScore = Math.round(scores['OVERALL SCORE'] || 0);
-          overallScoreElement.textContent = overallScore;
-
-          // Animate circle
-          const circle = document.getElementById('score-circle');
-          if (circle) {
-            circle.style.strokeDasharray = `${overallScore}, 100`;
-          }
+  }
+  
+  // STAR INFO FUNCTION
+  function fetchStarInfo() {
+    fetch("https://resume22-8ca971020619.herokuapp.com/star-info")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          const starInfoArea = document.getElementById("starInfoArea");
+          const starInfoText = document.getElementById("starInfoText");
+          let formattedStarInfo = data.star_info
+            .replace(/\n/g, "<br>")
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+          starInfoText.innerHTML = formattedStarInfo;
+          starInfoArea.style.display = "block";
+        } else {
+          console.error("Error fetching STAR info:", data.error);
         }
-
-        // Create score items (keep the existing code for other scores)
-        const scoresGrid = document.getElementById('scores-grid');
-        if (scoresGrid) {
-          scoresGrid.innerHTML = '';
-
-          Object.entries(scores).forEach(([criterion, score]) => {
-            if (criterion !== 'OVERALL SCORE') {
-              const scoreItem = document.createElement('div');
-              scoreItem.className = 'score-item';
-
-              const roundedScore = Math.round(score);
-              scoreItem.innerHTML = `
-                <div class="score-header">
-                  <div class="criterion-name">${criterion}</div>
-                  <div class="score-value">${roundedScore}%</div>
-                </div>
-                <div class="score-bar">
-                  <div class="score-fill" style="width: ${roundedScore}%"></div>
-                </div>
-                `;
-              scoresGrid.appendChild(scoreItem);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+  
+  // FUNCTION TO DISPLAY SCORES (unchanged)
+  function displayScores(scores) {
+    try {
+      const overallScoreElement = document.getElementById('overall-score-value');
+      if (overallScoreElement) {
+        const overallScore = Math.round(scores['OVERALL SCORE'] || 0);
+        overallScoreElement.textContent = overallScore;
+  
+        const circle = document.getElementById('score-circle');
+        if (circle) {
+          circle.style.strokeDasharray = `${overallScore}, 100`;
+        }
+      }
+  
+      const scoresGrid = document.getElementById('scores-grid');
+      if (scoresGrid) {
+        scoresGrid.innerHTML = '';
+  
+        Object.entries(scores).forEach(([criterion, score]) => {
+          if (criterion !== 'OVERALL SCORE') {
+            const scoreItem = document.createElement('div');
+            scoreItem.className = 'score-item';
+  
+            const roundedScore = Math.round(score);
+            scoreItem.innerHTML = `
+              <div class="score-header">
+                <div class="criterion-name">${criterion}</div>
+                <div class="score-value">${roundedScore}%</div>
+              </div>
+              <div class="score-bar">
+                <div class="score-fill" style="width: ${roundedScore}%"></div>
+              </div>
+            `;
+            scoresGrid.appendChild(scoreItem);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error displaying scores:', error);
+    }
+  }
+  
+  // FUNCTION TO FETCH RESUME SUMMARY (unchanged)
+  function fetchResumeSummary() {
+    fetch("https://resume22-8ca971020619.herokuapp.com/resume-summary")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          const resumeSummaryArea = document.getElementById("resumeSummaryArea");
+          const resumeSummaryText = document.getElementById("resumeSummaryText");
+          resumeSummaryText.innerHTML = data.resume_summary.replace(/\n/g, "<br>");
+          resumeSummaryArea.style.display = "block";
+        } else {
+          console.error("Error fetching scoring summary:", data.error);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+  
+  // FUNCTION TO DISPLAY ANALYSIS RESULT
+  function displayAnalysisResult(result) {
+    const analysisArea = document.getElementById("analysisArea");
+    if (analysisArea) {
+      analysisArea.style.display = "block";
+    }
+  
+    const analysisText = document.getElementById("analysisText");
+    if (analysisText && result.analysis) {
+      let formattedAnalysis = result.analysis
+        .replace(/\*\*(.*?)\*\*/g, '<span class="bold">$1</span>')
+        .replace(/(\d+\.)/g, "\n$1")
+        .replace(/(Insights:)/g, '<span class="bold">$1</span>')
+        .replace(/(Improvements:)/g, '<span class="bold">$1</span>')
+        .replace(/(Recommendations:)/g, '<span class="bold">$1</span>');
+      analysisText.innerHTML = formattedAnalysis;
+    }
+  
+    if (result.scores) {
+      displayScores(result.scores);
+    }
+  
+    if (result.highlights) {
+      const previewArea = document.getElementById("docPreview");
+      if (previewArea) {
+        let resumeText = previewArea.getAttribute("data-original-text") || previewArea.textContent;
+        if (result.highlights.sections) {
+          result.highlights.sections.forEach((section) => {
+            if (section.text && section.reason) {
+              const escapedText = section.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+              const regex = new RegExp(escapedText, "gi");
+              resumeText = resumeText.replace(
+                regex,
+                `<mark title="${section.reason}\nSuggestion: ${section.suggestion}">${section.text}</mark>`
+              );
             }
           });
-        }
-      } catch (error) {
-        console.error('Error displaying scores:', error);
-      }
-    }
-
-
-
-
-    //SCORING SUMMARY
-    function fetchResumeSummary() {
-      fetch("https://resume22-8ca971020619.herokuapp.com/resume-summary")
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            const resumeSummaryArea =
-              document.getElementById("resumeSummaryArea");
-            const resumeSummaryText =
-              document.getElementById("resumeSummaryText");
-            resumeSummaryText.innerHTML = data.resume_summary.replace(
-              /\n/g,
-              "<br>"
-            );
-            resumeSummaryArea.style.display = "block";
-          } else {
-            console.error("Error fetching scoring summary:", data.error);
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-
-    function displayAnalysisResult(result) {
-      const analysisArea = document.getElementById("analysisArea");
-      if (analysisArea) {
-        analysisArea.style.display = "block";
-      }
-
-      // Display analysis text
-      const analysisText = document.getElementById("analysisText");
-      if (analysisText && result.analysis) {
-        let formattedAnalysis = result.analysis
-          .replace(/\*\*(.*?)\*\*/g, '<span class="bold">$1</span>')
-          .replace(/(\d+\.)/g, "\n$1")
-          .replace(/(Insights:)/g, '<span class="bold">$1</span>')
-          .replace(/(Improvements:)/g, '<span class="bold">$1</span>')
-          .replace(/(Recommendations:)/g, '<span class="bold">$1</span>');
-        analysisText.innerHTML = formattedAnalysis;
-      }
-
-      // Call displayScores separately
-      if (result.scores) {
-        displayScores(result.scores);
-      }
-
-      // Handle highlights if they exist
-      if (result.highlights) {
-        const previewArea = document.getElementById("docPreview");
-        if (previewArea) {
-          let resumeText = previewArea.getAttribute("data-original-text") || previewArea.textContent;
-          if (result.highlights.sections) {
-            result.highlights.sections.forEach((section) => {
-              if (section.text && section.reason) {
-                const escapedText = section.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                const regex = new RegExp(escapedText, "gi");
-                resumeText = resumeText.replace(
-                  regex,
-                  `<mark title="${section.reason}\nSuggestion: ${section.suggestion}">${section.text}</mark>`
-                );
-              }
-            });
-            previewArea.innerHTML = resumeText;
-          }
+          previewArea.innerHTML = resumeText;
         }
       }
     }
+  }
+  
+  // // Call fetchStarInfo on page load to ensure STAR info is displayed (if available)
+  // window.onload = function() {
+  //   fetchStarInfo();
+  // };
+</script>
 
-    //elevtor pitch
-    function fetchElevatorPitch() {
-      fetch("https://resume22-8ca971020619.herokuapp.com/elevator-pitch")
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            const elevatorPitchArea =
-              document.getElementById("elevatorPitchArea");
-            const elevatorPitchText =
-              document.getElementById("elevatorPitchText");
-            elevatorPitchText.innerHTML = data.elevator_pitch.replace(
-              /\n/g,
-              "<br>"
-            );
-            elevatorPitchArea.style.display = "block";
-          } else {
-            console.error("Error fetching elevator pitch:", data.error);
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-    </script>
 </body>
 
 </html>
