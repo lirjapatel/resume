@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Upload and Analysis</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #f4f7f9;
+      color: #333;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #2c3e50;
+    }
+
+    #uploadForm,
+    #previewArea,
+    #analysisArea {
+      margin-bottom: 30px;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #uploadForm h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 32px;
+
+      /* Fallback color */
+      color: #07227a;
+      width: 40%;
+
+      /* Gradient effect */
+      background-image: linear-gradient(20deg, #07227a, #07c24b);
+      -webkit-background-clip: text;
+      -moz-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+
+    #previewArea,
+    #analysisArea {
+      display: none;
+    }
+
+    #pdfPreview {
+      width: 100%;
+      height: 800px;
+      border: none;
+    }
+
+    button {
+      margin-top: 15px;
+      margin-bottom: 25px;
+      padding: 12px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.2s;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    #scores ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #scores {
+      font-family: 'Montserrat', sans-serif;
+      /* text-align: center; */
+    }
+
+    #scores h1 {
+      font-weight: 800;
+      font-size: 27px;
+      color: #07227a;
+      background-image: linear-gradient(15deg, #07227a, #07c24b);
+      -webkit-background-clip: text;
+      -moz-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+      width: 40%;
+    }
+
+    .score-description {
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      line-height: 1.6;
+      color: #0b0b0b;
+    }
+
+    .score-description strong {
+      font-weight: 800;
+    }
+
+    #scoresList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+
+    #scores li {
+      font-weight: 600;
+      font-size: 18px;
+      /* color: #07227a; */
+      margin-bottom: 10px;
+    }
+
+
+
+
+    mark {
+      background-color: #ffeaa7;
+      padding: 2px 4px;
+      border-radius: 3px;
+      cursor: help;
+      position: relative;
+    }
+
+    mark:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      background: #34495e;
+      color: white;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      z-index: 1000;
+      max-width: 300px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* new code  */
+    .container-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 95%;
+      margin: 0 auto;
+    }
+
+    .middle-section {
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 150px;
+      background: linear-gradient(20deg, #07227a, #07c24b);
+      color: white;
+      margin: 30px auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      flex: 1;
+    }
+
+    .logo-image {
+      width: 140px;
+      height: 150px;
+      /* object-fit: contain; */
+      margin: 30px 0;
+      /* Match the margin of middle-section */
+    }
+
+
+    .middle-section h2 {
+      color: white;
+      margin: 0;
+      padding: 0;
+      font-size: 40px;
+      letter-spacing: 1px;
+    }
+
+    /* SUMMARY */
+
+    .gradient-text {
+      font-family: 'Montserrat', sans-serif;
+      /* Modern, clean font */
+      font-weight: 800;
+      /* Extra bold weight */
+      font-size: 27px;
+      /* Adjust size as needed */
+
+      /* Fallback color */
+      color: #07227a;
+
+      /* Gradient effect */
+      background-image: linear-gradient(20deg, #07227a, #07c24b);
+      -webkit-background-clip: text;
+      -moz-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    #analysisArea .summary-text {
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      line-height: 1.6;
+      color: #0b0b0b;
+    }
+
+
+
+
+    .score-bar {
+      background-color: #ecf0f1;
+      height: 16px;
+      width: 100%;
+      display: inline-block;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .score-fill {
+      background-color: #2ecc71;
+      height: 100%;
+      transition: width 0.5s ease-in-out;
+    }
+
+    /* new code for scores */
+    .score-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    .scores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .score-item {
+      background: #f5f5f5;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-bar {
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      background: #4caf50;
+      border-radius: 4px;
+      transition: width 0.5s ease-in-out;
+    }
+
+    .overall-score {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+
+    .circular-chart {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      font-weight: 500;
+
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: bold;
+      color: #4caf50;
+    }
+
+
+    /*  */
+    .score-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .overall-score {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+
+    .circular-chart {
+      width: 100%;
+      height: 100%;
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .scores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .score-item {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+    }
+
+    .score-bar {
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .score-fill {
+      height: 100%;
+      background: #4caf50;
+      border-radius: 4px;
+      transition: width 0.5s ease-in-out;
+    }
+
+
+    #analysisText {
+      /* white-space: pre-wrap;
+      line-height: 1.8; */
+      background-color: rgb(214, 214, 211);
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    input[type="file"] {
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 2px solid #bdc3c7;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 15px;
+      margin-bottom: 25px;
+      padding: 12px 20px;
+      background-color: #2ecc71;
+      /* Changed from #3498db to a green color */
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.2s;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+      /* Changed from #2980b9 to a darker green */
+      transform: translateY(-2px);
+    }
+
+    #viewAnalysisBtn:disabled {
+      background-color: #95a5a6;
+      /* Changed to a grayish color for consistency */
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2ecc71;
+      /* Changed from #3498db to match the new button color */
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #viewAnalysisBtn:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+
+    #resumeSummaryArea,
+    #elevatorPitchArea,
+    /* elevator pitch */
+    #elevatorPitchArea {
+      font-family: 'Montserrat', sans-serif;
+      /* text-align: center; */
+    }
+
+    #elevatorPitchArea h2 {
+      font-weight: 800;
+      font-size: 28px;
+      color: #07227a;
+      background-image: linear-gradient(20deg, #07227a, #07c24b);
+      -webkit-background-clip: text;
+      -moz-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    #elevatorPitchText {
+      background-color: rgb(214, 214, 211);
+      padding: 20px;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #elevatorPitchinfo {
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      line-height: 1.6;
+      color: #0b0b0b;
+    }
+
+    #starInfoArea {
+      font-family: 'Montserrat', sans-serif;
+
+
+    }
+
+    #starInfoArea h2 {
+      font-weight: 800;
+      font-size: 28px;
+      color: #07227a;
+      background-image: linear-gradient(20deg, #07227a, #07c24b);
+      -webkit-background-clip: text;
+      -moz-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    #starInfoText {
+      background-color: rgb(214, 214, 211);
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #starInfo {
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      line-height: 1.6;
+      color: #0b0b0b;
+    }
+
+    #starending {
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      line-height: 1.6;
+      color: #0b0b0b;
+    }
+
+    .star-technique {
+      margin: 20px 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .star-box {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .star-item {
+      flex: 1;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .star-header {
+      background-color: #f5f5f5;
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .star-content {
+      padding: 15px;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #333;
+    }
+
+    /* overall score */
+    .overall-score-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    /* .overall-score-container h3 {
+      margin-bottom: 1rem;
+      color: #333;
+      font-size: 1.2rem;
+      font-weight: 600;
+    } */
+
+    .score-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* .score-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    } */
+
+    /* .score-value {
+      font-weight: bold;
+      color: #4caf50;
+    } */
+    .overall-score-container h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: 700;
+      color: #4caf50;
+    }
+
+    .bold-score {
+      font-weight: 700;
+    }
+
+    .score-header {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .score-value {
+      font-weight: 700;
+      color: #4caf50;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-wrapper">
+    <div class="middle-section">
+      <h2>RESUME ANALYSIS AND RECOMMENDATIONS</h2>
+    </div>
+    <img src="./logo.jpg" alt="Logo" class="logo-image" />
+  </div>
+
+  <div id="uploadForm">
+    <h2>Upload Your Resume</h2>
+    <form enctype="multipart/form-data">
+      <input type="file" name="resume" accept=".pdf" required />
+      <button type="button" onclick="handleFileUpload()">Upload Resume</button>
+    </form>
+  </div>
+
+  <div id="previewArea" style="display: none;">
+    <h2>Resume Preview</h2>
+    <iframe id="pdfPreview" style="display: none;"></iframe>
+    <div id="docPreview" style="display: none;"></div>
+  </div>
+
+  <div id="analysisButtonContainer">
+    <button id="viewAnalysisBtn" onclick="fetchAndDisplayAnalysis()" disabled>
+      View Analysis
+    </button>
+    <div id="loadingSpinner" class="spinner" style="display: none"></div>
+  </div>
+
+  <div id="analysisArea" style="display: none;">
+    <div id="analysis">
+      <h2 class="gradient-text">SUMMARY OF FINDINGS – STRENGTHS & AREAS OF IMPROVEMENT</h2>
+      <div class="summary-text">
+        Here you will find more detailed information on the scoring that was provided above. This section provides a
+        more detailed summary of your resume strengths as well as areas that you can improve upon on your resume with some
+        recommendations on approach.
+      </div>
+      <div id="analysisText"></div>
+    </div>
+    <div id="scores">
+      <h1>SCORING SUMMARY</h1>
+      <div class="score-description">
+        Below you will find an overall ranking of your resume as well as a detailed breakdown of how we came up with the
+        score. Use this to focus on what areas of your resume you need to work on to enhance.
+      </div>
+      <div class="score-description">
+        <strong>90–100: Outstanding</strong> – Tailored, well-structured, impactful, and error-free.<br>
+        <strong>75–89: Strong</strong> – Well-crafted but may need better focus or details.<br>
+        <strong>60–74: Average</strong> – Covers basics but lacks refinement or clear impact.<br>
+        <strong>&lt;60: Needs improvement</strong> – Major issues in formatting, content, or clarity.
+      </div>
+      <div class="overall-score-container">
+        <h3>Overall Score</h3>
+        <div class="overall-score">
+          <svg viewBox="0 0 36 36" class="circular-chart">
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3" />
+            <path id="score-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#4caf50" stroke-width="3" />
+          </svg>
+          <div class="score-text">
+            <span id="overall-score-value" class="bold-score">0</span><span class="bold-score">%</span>
+          </div>
+        </div>
+      </div>
+      <div class="scores-grid" id="scores-grid"></div>
+    </div>
+  </div>
+
+  <div id="elevatorPitchArea" style="display: none">
+    <h2>TELL ME ABOUT YOURSELF - PERFECTING THE ELEVATOR PITCH</h2>
+    <div id="elevatorPitchinfo">
+      At one point or another during an interview (generally right at the beginning) you are always going to be asked
+      to tell an interviewer about yourself. The next section is there to help you with that. Below you will find a quick summary
+      of your background based on what we found in your resume. It looks at your education, work experience and if you add in
+      extracurriculars it will build that in as well. The more information you have in your resume the better it can build the summary
+      for you.
+    </div>
+    <div id="elevatorPitchText"></div>
+  </div>
+
+  <div id="starInfoArea" style="display: none">
+    <h2>ACING YOUR INTERVIEW - USING THE S.T.A.R TECHNIQUE TO SHINE!</h2>
+    <div id="starInfo">
+      The STAR interview technique is a powerful tool for job seekers to effectively showcase their skills and
+      experiences during interviews. Here's how to use the STAR method in your next interview:
+      <div class="star-technique">
+        <div class="star-box">
+          <div class="star-item">
+            <div class="star-header">SITUATION</div>
+            <div class="star-content">Briefly describe the context or background of the example you're about to share</div>
+          </div>
+          <div class="star-item">
+            <div class="star-header">TASK</div>
+            <div class="star-content">Explain the specific challenge or responsibility you faced in that situation</div>
+          </div>
+          <div class="star-item">
+            <div class="star-header">ACTION</div>
+            <div class="star-content">Detail the steps you took to address the task or challenge. Focus on your
+              individual contribution, using "I" instead of "we"</div>
+          </div>
+          <div class="star-item">
+            <div class="star-header">RESULT</div>
+            <div class="star-content">Highlight the positive outcomes of your actions, including what you achieved or learned</div>
+          </div>
+        </div>
+      </div>
+      <table width="100%" cellpadding="10">
+        <tr>
+          <td colspan="2">To effectively use this technique:</td>
+        </tr>
+        <tr>
+          <td width="50%">
+            1. Prepare several STAR examples beforehand, focusing on situations that demonstrate skills relevant to the job.
+          </td>
+          <td width="50%">
+            3. Practice your responses out loud to ensure they flow naturally and hit all the STAR components.
+          </td>
+        </tr>
+        <tr>
+          <td width="50%">
+            2. Keep your answers concise and to the point, typically 1-2 minutes long.
+          </td>
+          <td width="50%">
+            4. Be specific and use quantifiable results when possible, to make your answer more impactful.
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id="starInfoText"></div><br>
+    <div id="starending">
+      The above are just examples of areas you can leverage the STAR technique. You know yourself best so please use
+      additional information and more research to come up with better thought out answers. The above is just a guide
+      to help you get started.
+    </div>
+  </div>
+
+  <script>
+    function handleFileUpload() {
+      const fileInput = document.querySelector('input[type="file"]');
+      const file = fileInput.files[0];
+    
+      if (!file) {
+        alert("Please select a file to upload.");
+        return;
+      }
+    
+      const allowedTypes = ['.pdf', '.doc', '.docx'];
+      const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+      if (!allowedTypes.includes(fileExtension)) {
+        alert("Invalid file type. Please upload a PDF, DOC, or DOCX file.");
+        return;
+      }
+    
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert("File is too large. Maximum size is 5MB.");
+        return;
+      }
+    
+      showPreview(file);
+      document.getElementById("viewAnalysisBtn").disabled = false;
+      alert("File processed successfully!");
+    }
+    
+    function showPreview(file) {
+      const previewArea = document.getElementById("previewArea");
+      const pdfPreview = document.getElementById("pdfPreview");
+      const docPreview = document.getElementById("docPreview");
+    
+      previewArea.style.display = "block";
+    
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        if (file.type === "application/pdf") {
+          pdfPreview.src = e.target.result;
+          pdfPreview.style.display = "block";
+          docPreview.style.display = "none";
+        } else {
+          pdfPreview.style.display = "none";
+          docPreview.style.display = "block";
+          docPreview.setAttribute("data-original-text", file.name);
+          docPreview.textContent = file.name;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    
+
+    //Analysis
+    function fetchAnalysis() {
+      const button = document.getElementById("viewAnalysisBtn");
+      const spinner = document.getElementById("loadingSpinner");
+
+      if (button && spinner) {
+        button.disabled = true;
+        spinner.style.display = "inline-block";
+        button.textContent = "Processing...";
+      }
+
+      fetch("/analysis")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            displayAnalysisResult(data);
+            // Call other fetch functions
+            fetchElevatorPitch();
+            fetchStarInfo();
+          } else {
+            throw new Error(data.error || "Unknown error occurred");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error fetching analysis: " + error.message);
+        })
+        .finally(() => {
+          if (button && spinner) {
+            button.disabled = false;
+            spinner.style.display = "none";
+            button.textContent = "View Analysis";
+          }
+        });
+    }
+    //ElevatorPitch
+    function displayElevatorPitch(pitch) {
+      // const button = document.getElementById("viewAnalysisBtn");
+      const elevatorPitchArea = document.getElementById("elevatorPitchArea");
+      const elevatorPitchText = document.getElementById("elevatorPitchText");
+      elevatorPitchText.innerHTML = pitch.replace(/\n/g, "<br>");
+      elevatorPitchArea.style.display = "block";
+    }
+    //elevator pitch analysis
+    fetch("/analysis")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          displayAnalysisResult(data);
+          fetchElevatorPitch();
+        } else {
+          throw new Error(data.error || "Unknown error occurred");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error fetching analysis: " + error.message);
+      })
+      .finally(() => {
+        button.disabled = false;
+        spinner.style.display = "none";
+        button.textContent = "View Analysis";
+      });
+
+    // highlighting function
+    function highlightResumeText(text, highlights) {
+      if (
+        !highlights ||
+        !highlights.sections ||
+        !Array.isArray(highlights.sections)
+      ) {
+        console.error("Invalid highlights structure:", highlights);
+        return text;
+      }
+
+      let highlightedText = text;
+      highlights.sections.forEach((section) => {
+        if (section.text && section.reason) {
+          const escapedText = section.text.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          );
+          const regex = new RegExp(escapedText, "gi");
+          highlightedText = highlightedText.replace(
+            regex,
+            `<mark title="${section.reason}">${section.text}</mark>`
+          );
+        }
+      });
+      return highlightedText;
+    }
+
+    //STAR INFO
+    function fetchStarInfo() {
+      fetch("/star-info")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            const starInfoArea = document.getElementById("starInfoArea");
+            const starInfoText = document.getElementById("starInfoText");
+            let formattedStarInfo = data.star_info
+              .replace(/\n/g, "<br>")
+              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+            starInfoText.innerHTML = formattedStarInfo;
+            starInfoArea.style.display = "block";
+          } else {
+            console.error("Error fetching STAR info:", data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+        // diplay scores 
+    function displayScores(scores) {
+      try {
+        // Update overall score
+        const overallScoreElement = document.getElementById('overall-score-value');
+        if (overallScoreElement) {
+          const overallScore = Math.round(scores['OVERALL SCORE'] || 0);
+          overallScoreElement.textContent = overallScore;
+
+          // Animate circle
+          const circle = document.getElementById('score-circle');
+          if (circle) {
+            circle.style.strokeDasharray = `${overallScore}, 100`;
+          }
+        }
+
+        // Create score items (keep the existing code for other scores)
+        const scoresGrid = document.getElementById('scores-grid');
+        if (scoresGrid) {
+          scoresGrid.innerHTML = '';
+
+          Object.entries(scores).forEach(([criterion, score]) => {
+            if (criterion !== 'OVERALL SCORE') {
+              const scoreItem = document.createElement('div');
+              scoreItem.className = 'score-item';
+
+              const roundedScore = Math.round(score);
+              scoreItem.innerHTML = `
+                <div class="score-header">
+                  <div class="criterion-name">${criterion}</div>
+                  <div class="score-value">${roundedScore}%</div>
+                </div>
+                <div class="score-bar">
+                  <div class="score-fill" style="width: ${roundedScore}%"></div>
+                </div>
+                `;
+              scoresGrid.appendChild(scoreItem);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error displaying scores:', error);
+      }
+    }
+
+
+
+
+    //SCORING SUMMARY
+    function fetchResumeSummary() {
+      fetch("/resume-summary")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            const resumeSummaryArea =
+              document.getElementById("resumeSummaryArea");
+            const resumeSummaryText =
+              document.getElementById("resumeSummaryText");
+            resumeSummaryText.innerHTML = data.resume_summary.replace(
+              /\n/g,
+              "<br>"
+            );
+            resumeSummaryArea.style.display = "block";
+          } else {
+            console.error("Error fetching scoring summary:", data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    function displayAnalysisResult(result) {
+      const analysisArea = document.getElementById("analysisArea");
+      if (analysisArea) {
+        analysisArea.style.display = "block";
+      }
+
+      // Display analysis text
+      const analysisText = document.getElementById("analysisText");
+      if (analysisText && result.analysis) {
+        let formattedAnalysis = result.analysis
+          .replace(/\*\*(.*?)\*\*/g, '<span class="bold">$1</span>')
+          .replace(/(\d+\.)/g, "\n$1")
+          .replace(/(Insights:)/g, '<span class="bold">$1</span>')
+          .replace(/(Improvements:)/g, '<span class="bold">$1</span>')
+          .replace(/(Recommendations:)/g, '<span class="bold">$1</span>');
+        analysisText.innerHTML = formattedAnalysis;
+      }
+
+      // Call displayScores separately
+      if (result.scores) {
+        displayScores(result.scores);
+      }
+
+      // Handle highlights if they exist
+      if (result.highlights) {
+        const previewArea = document.getElementById("docPreview");
+        if (previewArea) {
+          let resumeText = previewArea.getAttribute("data-original-text") || previewArea.textContent;
+          if (result.highlights.sections) {
+            result.highlights.sections.forEach((section) => {
+              if (section.text && section.reason) {
+                const escapedText = section.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                const regex = new RegExp(escapedText, "gi");
+                resumeText = resumeText.replace(
+                  regex,
+                  `<mark title="${section.reason}\nSuggestion: ${section.suggestion}">${section.text}</mark>`
+                );
+              }
+            });
+            previewArea.innerHTML = resumeText;
+          }
+        }
+      }
+    }
+
+    //elevtor pitch
+    function fetchElevatorPitch() {
+      fetch("/elevator-pitch")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            const elevatorPitchArea =
+              document.getElementById("elevatorPitchArea");
+            const elevatorPitchText =
+              document.getElementById("elevatorPitchText");
+            elevatorPitchText.innerHTML = data.elevator_pitch.replace(
+              /\n/g,
+              "<br>"
+            );
+            elevatorPitchArea.style.display = "block";
+          } else {
+            console.error("Error fetching elevator pitch:", data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+    </script>
+</body>
+
+</html>
