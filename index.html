@@ -852,7 +852,7 @@
       elevatorPitchArea.style.display = "block";
     }
     //elevator pitch analysis
-    fetch("/analysis")
+    fetch("https://resume22-8ca971020619.herokuapp.com/analysis")
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -902,7 +902,7 @@
 
     //STAR INFO
     function fetchStarInfo() {
-      fetch("/star-info")
+      fetch("https://resume22-8ca971020619.herokuapp.com/star-info")
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
@@ -971,7 +971,7 @@
 
     //SCORING SUMMARY
     function fetchResumeSummary() {
-      fetch("/resume-summary")
+      fetch("https://resume22-8ca971020619.herokuapp.com/resume-summary")
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
@@ -1040,7 +1040,7 @@
 
     //elevtor pitch
     function fetchElevatorPitch() {
-      fetch("/elevator-pitch")
+      fetch("https://resume22-8ca971020619.herokuapp.com/elevator-pitch")
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
