@@ -769,54 +769,136 @@
 <script>
   // FILE UPLOAD & PREVIEW FUNCTIONS
   function handleFileUpload() {
-    const fileInput = document.querySelector('input[type="file"]');
-    const file = fileInput.files[0];
-  
-    if (!file) {
-      alert("Please select a file to upload.");
-      return;
-    }
-  
-    const allowedTypes = ['.pdf', '.doc', '.docx'];
-    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-    if (!allowedTypes.includes(fileExtension)) {
-      alert("Invalid file type. Please upload a PDF, DOC, or DOCX file.");
-      return;
-    }
-  
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      alert("File is too large. Maximum size is 5MB.");
-      return;
-    }
-  
-    showPreview(file);
-    document.getElementById("viewAnalysisBtn").disabled = false;
-    alert("File processed successfully!");
+  const fileInput = document.querySelector('input[type="file"]');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert("Please select a file to upload.");
+    return;
   }
-  
-  function showPreview(file) {
-    const previewArea = document.getElementById("previewArea");
-    const pdfPreview = document.getElementById("pdfPreview");
-    const docPreview = document.getElementById("docPreview");
-  
-    previewArea.style.display = "block";
-  
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      if (file.type === "application/pdf") {
-        pdfPreview.src = e.target.result;
-        pdfPreview.style.display = "block";
-        docPreview.style.display = "none";
-      } else {
-        pdfPreview.style.display = "none";
-        docPreview.style.display = "block";
-        docPreview.setAttribute("data-original-text", file.name);
-        docPreview.textContent = file.name;
+
+  const allowedTypes = ['.pdf', '.doc', '.docx'];
+  const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+  if (!allowedTypes.includes(fileExtension)) {
+    alert("Invalid file type. Please upload a PDF, DOC, or DOCX file.");
+    return;
+  }
+
+  const maxSize = 10 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    alert("File is too large. Maximum size is 5MB.");
+    return;
+  }
+
+  // Create FormData and append the file
+  const formData = new FormData();
+  formData.append("resume", file);
+
+  // Send the file to the /upload endpoint
+  fetch("/upload", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => {
+      if (!response.ok) {
+        return response.json().then((err) => {
+          throw err;
+        });
       }
-    };
-    reader.readAsDataURL(file);
-  }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success) {
+        alert("File uploaded successfully!");
+        // Call showPreview with the original file
+        showPreview(file);
+        document.getElementById("viewAnalysisBtn").disabled = false;
+      } else {
+        alert("Error: " + data.error);
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert(
+        "Error uploading file: " +
+          (error.error || error.message || "Unknown error")
+      );
+    });
+}
+
+function showPreview(file) {
+  const previewArea = document.getElementById("previewArea");
+  const pdfPreview = document.getElementById("pdfPreview");
+  const docPreview = document.getElementById("docPreview");
+
+  previewArea.style.display = "block";
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    if (file.type === "application/pdf") {
+      pdfPreview.src = e.target.result;
+      pdfPreview.style.display = "block";
+      docPreview.style.display = "none";
+    } else {
+      pdfPreview.style.display = "none";
+      docPreview.style.display = "block";
+      // Store original text content (file name) in data attribute
+      docPreview.setAttribute("data-original-text", file.name);
+      docPreview.textContent = file.name;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+  // function handleFileUpload() {
+  //   const fileInput = document.querySelector('input[type="file"]');
+  //   const file = fileInput.files[0];
+  
+  //   if (!file) {
+  //     alert("Please select a file to upload.");
+  //     return;
+  //   }
+  
+  //   const allowedTypes = ['.pdf', '.doc', '.docx'];
+  //   const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+  //   if (!allowedTypes.includes(fileExtension)) {
+  //     alert("Invalid file type. Please upload a PDF, DOC, or DOCX file.");
+  //     return;
+  //   }
+  
+  //   const maxSize = 5 * 1024 * 1024; // 5MB
+  //   if (file.size > maxSize) {
+  //     alert("File is too large. Maximum size is 5MB.");
+  //     return;
+  //   }
+  
+  //   showPreview(file);
+  //   document.getElementById("viewAnalysisBtn").disabled = false;
+  //   alert("File processed successfully!");
+  // }
+  
+  // function showPreview(file) {
+  //   const previewArea = document.getElementById("previewArea");
+  //   const pdfPreview = document.getElementById("pdfPreview");
+  //   const docPreview = document.getElementById("docPreview");
+  
+  //   previewArea.style.display = "block";
+  
+  //   const reader = new FileReader();
+  //   reader.onload = function (e) {
+  //     if (file.type === "application/pdf") {
+  //       pdfPreview.src = e.target.result;
+  //       pdfPreview.style.display = "block";
+  //       docPreview.style.display = "none";
+  //     } else {
+  //       pdfPreview.style.display = "none";
+  //       docPreview.style.display = "block";
+  //       docPreview.setAttribute("data-original-text", file.name);
+  //       docPreview.textContent = file.name;
+  //     }
+  //   };
+  //   reader.readAsDataURL(file);
+  // }
   
   // ANALYSIS FETCH FUNCTION (called when the user clicks the "View Analysis" button)
   //   function fetchAnalysis() {
