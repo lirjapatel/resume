@@ -818,7 +818,7 @@
   }
   
   // ANALYSIS FETCH FUNCTION (called when the user clicks the "View Analysis" button)
-  function fetchAnalysis() {
+    function fetchAnalysis() {
     const button = document.getElementById("viewAnalysisBtn");
     const spinner = document.getElementById("loadingSpinner");
     
@@ -832,7 +832,9 @@
       .then((data) => {
         if (data.success) {
           displayAnalysisResult(data);
+          // Call elevator pitch and STAR info functions in the same style
           fetchElevatorPitch();
+          fetchStarInfo();
         } else {
           throw new Error(data.error || "Unknown error occurred");
         }
@@ -872,19 +874,22 @@
       });
   }
   
-  // STAR INFO FUNCTION
+  // STAR INFO FUNCTIONS (structured like the elevator pitch)
+  function displayStarInfo(info) {
+    const starInfoArea = document.getElementById("starInfoArea");
+    const starInfoText = document.getElementById("starInfoText");
+    starInfoText.innerHTML = info
+      .replace(/\n/g, "<br>")
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    starInfoArea.style.display = "block";
+  }
+  
   function fetchStarInfo() {
     fetch("https://resume22-8ca971020619.herokuapp.com/star-info")
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          const starInfoArea = document.getElementById("starInfoArea");
-          const starInfoText = document.getElementById("starInfoText");
-          let formattedStarInfo = data.star_info
-            .replace(/\n/g, "<br>")
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-          starInfoText.innerHTML = formattedStarInfo;
-          starInfoArea.style.display = "block";
+          displayStarInfo(data.star_info);
         } else {
           console.error("Error fetching STAR info:", data.error);
         }
