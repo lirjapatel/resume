@@ -1,0 +1,49 @@
+name: Run Jupyter Notebook
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install nbconvert jupyter_client ipykernel
+        pip install -r requirements.txt
+    - name: Debug environment variables
+      run: |
+        echo "MONGODB_URI is set: ${{ secrets.MONGODB_URI != '' }}"
+        echo "OPENAI_API_KEY is set: ${{ secrets.OPENAI_API_KEY != '' }}"
+
+    - name: Run notebook
+      env:
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: python run_notebook.py "Orgpath (3).ipynb"
+      
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add "Orgpath (3).ipynb"
+        git commit -m "Update notebook" || echo "No changes to commit"
+        git push
