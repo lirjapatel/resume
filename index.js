@@ -271,7 +271,8 @@ app.get("/analysis", async (req, res) => {
         analysis: latestResume.analysis,
         scores: latestResume.assessment_scores,
         highlights: latestResume.highlights,
-        elevator_pitch: latestResume.elevator_pitch
+        elevator_pitch: latestResume.elevator_pitch,
+        star_info: latestResume.star_info
       });
     } else {
       res.status(404).json({ success: false, error: "No analysis found" });
