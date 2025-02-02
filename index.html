@@ -822,26 +822,26 @@
       const button = document.getElementById("viewAnalysisBtn");
       const spinner = document.getElementById("loadingSpinner");
 
-     fetch("https://resume22-8ca971020619.herokuapp.com/analysis")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          displayAnalysisResult(data);
-          fetchElevatorPitch();
-        } else {
-          throw new Error(data.error || "Unknown error occurred");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Error fetching analysis: " + error.message);
-      })
-      .finally(() => {
-        // Now button and spinner are defined
-        button.disabled = false;
-        spinner.style.display = "none";
-        button.textContent = "View Analysis";
-      });
+     // fetch("https://resume22-8ca971020619.herokuapp.com/analysis")
+     //  .then((response) => response.json())
+     //  .then((data) => {
+     //    if (data.success) {
+     //      displayAnalysisResult(data);
+     //      fetchElevatorPitch();
+     //    } else {
+     //      throw new Error(data.error || "Unknown error occurred");
+     //    }
+     //  })
+     //  .catch((error) => {
+     //    console.error("Error:", error);
+     //    alert("Error fetching analysis: " + error.message);
+     //  })
+     //  .finally(() => {
+     //    // Now button and spinner are defined
+     //    button.disabled = false;
+     //    spinner.style.display = "none";
+     //    button.textContent = "View Analysis";
+     //  });
     }
     //ElevatorPitch
     function displayElevatorPitch(pitch) {
