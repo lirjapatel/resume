@@ -225,19 +225,46 @@ app.get("/run-notebook", async (req, res) => {
 });
 
 // Defines a route to fetch analysis results after running the notebook.
+// app.get("/analysis", async (req, res) => {
+//   try {
+//     const notebookResponse = await fetch("http://localhost:3000/run-notebook");
+//     const notebookResult = await notebookResponse.json();
+
+//     if (!notebookResult.success) {
+//       throw new Error("Failed to run notebook");
+//     }
+
+//     const latestResume = await resumesCollection.findOne(
+//       {},
+//       { sort: { uploadedAt: -1 } }
+//     );
+//     if (latestResume && latestResume.analysis && latestResume.assessment_scores) {
+//       res.json({
+//         success: true,
+//         analysis: latestResume.analysis,
+//         scores: latestResume.assessment_scores,
+//         highlights: latestResume.highlights,
+//         elevator_pitch: latestResume.elevator_pitch
+//       });
+//     } else {
+//       res.status(404).json({ success: false, error: "No analysis found" });
+//     }
+//   } catch (error) {
+//     console.error("Error fetching analysis:", error);
+//     res.status(500).json({ success: false, error: "Error fetching analysis" });
+//   }
+// });
+
+// In your server index.js, change the /analysis route:
 app.get("/analysis", async (req, res) => {
   try {
-    const notebookResponse = await fetch("http://localhost:3000/run-notebook");
+    const notebookUrl = req.protocol + "://" + req.get("host") + "/run-notebook";
+    const notebookResponse = await fetch(notebookUrl);
     const notebookResult = await notebookResponse.json();
-
     if (!notebookResult.success) {
       throw new Error("Failed to run notebook");
     }
-
-    const latestResume = await resumesCollection.findOne(
-      {},
-      { sort: { uploadedAt: -1 } }
-    );
+    const latestResume = await resumesCollection.findOne({}, { sort: { uploadedAt: -1 } });
     if (latestResume && latestResume.analysis && latestResume.assessment_scores) {
       res.json({
         success: true,
@@ -254,7 +281,6 @@ app.get("/analysis", async (req, res) => {
     res.status(500).json({ success: false, error: "Error fetching analysis" });
   }
 });
-
 
 
 
