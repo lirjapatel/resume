@@ -14,7 +14,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@jupyterlab/services": "^8.0.0",
+    "@jupyterlab/services": "^7.3.5",
     "@react-pdf-viewer/core": "^4.0.0",
     "@react-pdf-viewer/highlight": "^4.0.0",
     "child_process": "^1.0.2",
