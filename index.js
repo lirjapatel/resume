@@ -192,7 +192,7 @@ app.get("/run-notebook", async (req, res) => {
   try {
     const notebookPath = path.join(__dirname, "Orgpath (3).ipynb");
     const pythonScript = path.join(__dirname, "run_notebook.py");
-    const python = spawn("python", [pythonScript, notebookPath]);
+    const python = spawn("python3", [pythonScript, notebookPath]);
 
     let output = "";
     let errorOutput = "";
