@@ -39,12 +39,12 @@ jobs:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-      run: python run_notebook.py "Orgpath (3).ipynb"
+      run: python run_notebook.py "orgpath.ipynb"
       
     - name: Commit changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add "Orgpath (3).ipynb"
+        git add "orgpath.ipynb"
         git commit -m "Update notebook" || echo "No changes to commit"
         git push
